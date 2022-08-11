@@ -15,7 +15,7 @@
           crossorigin="anonymous"></script>
   <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
 
-  <script type="text/javascript" th:src="@{js/fetchUserInfo.js}"> </script>
+
 </head>
 <body onload="infoUser()">
 <div class="container-fluid">
@@ -75,7 +75,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel"></h5>
+        <h5 class="modal-title" id="editModalLabel">Edit user</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"
                 aria-label="Close" id="js-close"><span aria-hidden="true">&times;</span>
         </button>
@@ -88,75 +88,26 @@
   </div>
 </div>
 
-<!-- deleteModal
-
+<!-- deleteModal-->
 <div class="modal fade" id="deleteModal"
      aria-labelledby="exampleModalLabel2" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Delete user</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"
+        <button type="button" class="btn-close" id="js-closeDelete" data-bs-dismiss="modal"
                 aria-label="Close"><span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action=""
-            method="GET">
-        <div class="modal-body col-md text-center">
-          <div class="form-group">
-            <label for="id1"><b>ID</b></label>
-            <input name="id" readonly type="text"
-                   class="form-control w-50 mx-auto" id="id1" >
-          </div>
-          <div class="form-group">
-            <label for="firstName1"><b>First Name</b></label>
-            <input name="firstName" type="text" readonly
-                   class="form-control w-50 mx-auto" id="firstName1"
-            />
-          </div>
-          <div class="form-group">
-            <label for="lastName1"><b>Last Name</b></label>
-            <input name="lastName" type="text" readonly
-                   class="form-control w-50 mx-auto" id="lastName1"
-            />
-          </div>
-          <div class="form-group">
-            <label for="age1"><b>Age</b></label>
-            <input name="age" type="number" readonly
-                   class="form-control w-50 mx-auto" id="age1"
-            />
-          </div>
-          <div class="form-group">
-            <label for="username1"><b>Email</b></label>
-            <input name="username" type="text" readonly
-                   class="form-control w-50 mx-auto" id="username1"
-                   t/>
-          </div>
-          <div class="form-group" readonly="readonly">
-            <label for="roles1"><b>Role</b></label>
-            <select disabled multiple
-                    class="form-control form-control-sm w-50 mx-auto"
-                    id="roles1"
-                    size="2" name="roles">
-              <option>
-                <
-              </option>
-            </select>
-            <br><br>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary"
-                  data-bs-dismiss="modal">Close
-          </button>
-          <button type="submit" class="btn btn-danger">
-            Delete
-          </button>
-        </div>
+      <form id="modal-delete-form-js"action=""
+            method="POST">
+
       </form>
     </div>
   </div>
-</div>-->
+</div>
+
+<script type="text/javascript" th:src="@{js/fetchUserInfo.js}"> </script>
 </body>
 
 </html>

@@ -15,15 +15,17 @@ const userFetch = {
     }),
     updateUser: async (user, id) => await fetch(`http://localhost:8089/api/update/${id}`,
         {method: 'PUT', headers: userFetch.head, body: JSON.stringify(user)}),
-    deleteUser: async (id) => await fetch(`http://localhost:8089/api/update/${id}`,
+    deleteUser: async (id) => await fetch(`http://localhost:8089/api/delete/${id}`,
         {method: 'DELETE', headers: userFetch.head})
 }
 
 
-
-async function infoUser() {
+async function infoUser(a = 0) {
     let temp = '';
     const name = document.querySelector('#js-info');
+    while (name.firstChild){
+        name.removeChild(name.firstChild);
+    }
     let mainRole = "";
     let secondRole = "";
     let id;
@@ -45,35 +47,26 @@ async function infoUser() {
             }
         });
     name.innerHTML = temp;
-    initView(mainRole, secondRole, id, 0);
+    initView(mainRole, secondRole, id, a);
 }
 
 function initView(role1, role2, id, c) {
     let link;
-    if (role1 === "ADMIN" && c!==1) {
-        if (c ===2){
-            document.getElementById("js-usrTable").classList.remove('active');
+    if (role1 === "ADMIN" && c !== 1) {
+        if (c === 2) {
+            document.getElementById("js-usrTable").classList.add('active');
             document.getElementById("js-usrTable").removeAttribute('onclick');
             document.getElementById("js-newUser").classList.remove('active');
             document.getElementById("js-newUser").setAttribute('href', 'javascript:void(0)');
         }
-        if (c === 3){
+        if (c === 3) {
             addAdminTabs()
             document.getElementById("js-user").classList.remove('active');
             document.getElementById("js-admin").classList.add('active');
             document.getElementById("js-admin").removeAttribute('onclick')
-
-
         }
         document.getElementById("js-user").setAttribute('onclick', 'changeViews(2)');
         document.getElementById("js-newUser").setAttribute('onclick', 'newUserForm()');
-
-
-
-
-
-
-
         document.getElementById("js-h1Header").innerText = "Admin panel";
         document.getElementById("js-h5Header").innerText = "All users";
         link = document.getElementById("js-cardBody")
@@ -81,12 +74,11 @@ function initView(role1, role2, id, c) {
             link.removeChild(link.firstChild);
         }
         drawTable(role1, link, id);
-    } else if (role2 === "USER" ||  c === 1) {
-
+    } else if (role2 === "USER" || c === 1) {
         link = document.getElementById("js-user");
         link.classList.add('active')
         link.removeAttribute('onclick');
-        if ( c === 1) {
+        if (c === 1) {
 
             link = document.getElementById("js-admin");
             link.classList.remove('active');
@@ -95,7 +87,6 @@ function initView(role1, role2, id, c) {
             while (link.firstChild) {
                 link.removeChild(link.firstChild);
             }
-
         }
         document.getElementById("js-h1Header").innerText = "User Information-page";
         document.getElementById("js-h5Header").innerText = "About user";
@@ -103,19 +94,19 @@ function initView(role1, role2, id, c) {
         while (link.firstChild) {
             link.removeChild(link.firstChild);
         }
-        if (c===1) {
-           drawTable("USER", link, id);
+        if (c === 1) {
+            drawTable("USER", link, id);
         } else {
-        drawTable(role2, link, id);
+            drawTable(role2, link, id);
         }
     }
 }
 
-function changeViews(n) {
+async function changeViews(n) {
     let mainRole = "";
     let secondRole = "";
     let id;
-    userFetch.findCurrentUser()
+    await userFetch.findCurrentUser()
         .then(res => res.json())
         .then(user => {
             id = user.id;
@@ -130,21 +121,17 @@ function changeViews(n) {
             switch (n) {
                 case 1:
                     initView(mainRole, secondRole, id, 3);
-
                     break;
                 case 2:
-
                     initView(mainRole, secondRole, id, 1);
                     break;
                 case 3:
-
                     initView(mainRole, secondRole, id, 2);
                     break;
                 default:
                     break;
             }
         });
-
 }
 
 
@@ -197,11 +184,11 @@ async function drawTable(role, el, id) {
 //data-bs-target='#editModal data-bs-target='#deleteModal data-bs-toggle='modal'
                                 temp += "<td>" +
                                     "                        <button type='button' data-userid='" + u.id + "' data-action='edit' class='btn btn-info js-open-modal'" +
-                                    "                          onclick='startModal(this)' >Edit</button>" +
+                                    "                          onclick='startEditModal(this)' >Edit</button>" +
                                     "                    </td>" +
                                     "                    <td>" +
                                     "                        <button  type='button' data-userid='" + u.id + "' data-action='delete' class='btn btn-danger js-open-modal'" +
-                                    "                        onclick='startModal(this)'   >Delete</button>" +
+                                    "                        onclick='startDeleteModal(this)'   >Delete</button>" +
                                     "                    </td>" +
                                     "                </tr>";
                                 document.getElementById("data").innerHTML = temp;
@@ -252,23 +239,19 @@ async function drawTable(role, el, id) {
                         for (let i = 0; i < user.roles.length; i++) {
                             temp2 += user.roles[i].name.substring(5) + " ";
                         }
-
                         table += "<td>" + temp2 + "</td></tr>";
                         document.getElementById("data").innerHTML = table;
-
                     })
             });
     }
 }
 
 
-async function startModal(element) {
-
-        let response = await userFetch.findOneUser(element.getAttribute("data-userid"));
-        if (response.ok) {
-            response.json().then(user=> {
-                let moedel =
-                '        <div class="modal-body col-md text-center">\n' +
+async function startEditModal(element) {
+    let response = await userFetch.findOneUser(element.getAttribute("data-userid"));
+    if (response.ok) {
+        response.json().then(user => {
+            document.getElementById("modal-form-js").innerHTML = ' <div class="modal-body col-md text-center">\n' +
                 '          <div class="form-group">\n' +
                 '            <label for="id"><b>ID</b></label>\n' +
                 '            <input name="id" readonly type="text"\n' +
@@ -316,186 +299,219 @@ async function startModal(element) {
                 '            </select>\n' +
                 '            <br><br>\n' +
                 '          </div>\n' +
-                '        </div>\n'+
+                '        </div>\n' +
                 '<div class="modal-footer">\n' +
-                    '          <button type="button" class="btn btn-secondary"\n' +
-                    '                  data-bs-dismiss="modal" >Close\n' +
-                    '          </button>\n' +
-                    '          <button id="js-bts" type="submit"  class="">в\n' +
-                    '            \n' +
-                    '          </button>\n' +
-                    '        </div>';
-                document.getElementById("modal-form-js").innerHTML = moedel;
-                let select = "";
-                userFetch.getRoles().then(res => {
-                    if(res.ok){
+                '          <button type="button" class="btn btn-secondary"\n' +
+                '                  data-bs-dismiss="modal" >Close\n' +
+                '          </button>\n' +
+                '          <button id="js-bts" type="submit" onclick="update()"  class="btn btn-primary">\n' +
+                '            \n' +
+                '          Edit</button>\n' +
+                '        </div>';
+            let select = "";
+            userFetch.getRoles().then(res => {
+                    if (res.ok) {
                         res.json().then(
                             data => {
-                                    let temp1;
-                                    let temp2;
-
-                                        temp2=user.roles;
-                                        temp1=data._embedded.roleList;
-                                    let id = temp2.map(e=> e.id);
-                                    for (let i = 0; i < temp1.length ; i++) {
-                                        if (id.includes(temp1[i].id)){
-                                            select += "<option selected='selected' id='"+ temp1[i].id +"'>" + temp1[i].name.substring(5) + "</option> ";
-                                        } else {
-                                            select += "<option id='"+ temp1[i].id +"'>" + temp1[i].name.substring(5) + "</option> ";
-                                        }
+                                let temp1;
+                                let temp2;
+                                temp2 = user.roles;
+                                temp1 = data._embedded.roleList;
+                                let id = temp2.map(e => e.id);
+                                for (let i = 0; i < temp1.length; i++) {
+                                    if (id.includes(temp1[i].id)) {
+                                        select += "<option selected='selected' id='" + temp1[i].id + "'>" + temp1[i].name.substring(5) + "</option> ";
+                                    } else {
+                                        select += "<option id='" + temp1[i].id + "'>" + temp1[i].name.substring(5) + "</option> ";
                                     }
-                                    document.getElementById("roles").innerHTML = select;
-
+                                }
+                                document.getElementById("roles").innerHTML = select;
+                                let myModal2 = new bootstrap.Modal(document.getElementById('editModal'), {
+                                    keyboard: true
+                                })
+                                myModal2.show();
                             }
                         )
                     } else {
-                    res.text().then(re=>console.log("Ошибка получения ролей " + re));
+                        res.text().then(re => console.log("Ошибка получения ролей " + re));
                     }
-                    }
-                );
+                }
+            );
 
-           } );
-            if ((element.getAttribute("data-action") === "edit")) {
-                document.getElementById("editModalLabel").innerText = "Edit user";
-                document.getElementById("js-bts").textContent = "Edit";
-                document.getElementById("js-bts").setAttribute('onclick', update())
-                document.getElementById("js-bts").classList.add("btn")
-                document.getElementById("js-bts").classList.add("btn-primary")
+        });
+    } else {
+        response.text().then(r => alert(r));
+    }
 
-
-
-            } else if (element.getAttribute("data-action") === "delete") {
-                document.getElementById("editModalLabel").innerText = "Delete user";
-                document.getElementById("js-bts").textContent = "Delete";
-                document.getElementById("js-bts").setAttribute('onclick', deleteUser());
-                document.getElementById("js-bts").classList.add("btn") ;
-                document.getElementById("js-bts").classList.add("btn-danger");
-                setReadOnlyInput();
-            }
-            let myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-                keyboard: true
-            })
-            myModal.show();
-        } else {
-            response.text().then(r => alert(r));
-        }
-
-
-
-
-
-
-
-    // myModal.submit = function () {
-    //     myModal.hide();
-    // }
-
-
-    //document
-    //  console.log(parseInt(element.getAttribute("data-userid"))===1)
-    //
-    //  console.log(element.getAttribute("data-action")==="edit")
-    //
-    //  console.log(document.getElementById('editModal1'));
-    // let modal = document.getElementById('editModal1');
-    // modal.childNodes["id0"].innerText = 1;
-    //
-    //  document.getElementById('editModal1').childNodes["id0"]
 }
 
-function setReadOnlyInput(){
-    document.getElementById("firstName").setAttribute('readonly', "true");
-    document.getElementById("lastName").setAttribute('readonly', "true");
-    document.getElementById("age").setAttribute('readonly', "true");
-    document.getElementById("username").setAttribute('readonly', "true");
-    document.getElementById("password").setAttribute('readonly', "true");
-    document.getElementById("roles").setAttribute('readonly', "true");
+async function startDeleteModal(element) {
+    let response = await userFetch.findOneUser(element.getAttribute("data-userid"));
+    if (response.ok) {
+        response.json().then(user => {
+            document.getElementById("modal-delete-form-js").innerHTML = '<div class="modal-body col-md text-center">\n' +
+                '          <div class="form-group">\n' +
+                '            <label for="id1"><b>ID</b></label>\n' +
+                '            <input name="id" readonly type="text"\n' +
+                '                   class="form-control w-50 mx-auto" id="id1"value="' + user.id + '"/>\n' +
+                '          </div>\n' +
+                '          <div class="form-group">\n' +
+                '            <label for="firstName1"><b>First Name</b></label>\n' +
+                '            <input name="firstName" type="text" readonly\n' +
+                '                   class="form-control w-50 mx-auto" id="firstName1" value="' + user.firstName + '"\n' +
+                '            />\n' +
+                '          </div>\n' +
+                '          <div class="form-group">\n' +
+                '            <label for="lastName1"><b>Last Name</b></label>\n' +
+                '            <input name="lastName" type="text" readonly\n' +
+                '                   class="form-control w-50 mx-auto" id="lastName1" value="' + user.lastName + '"\n' +
+                '            />\n' +
+                '          </div>\n' +
+                '          <div class="form-group">\n' +
+                '            <label for="age1"><b>Age</b></label>\n' +
+                '            <input name="age" type="number" readonly\n' +
+                '                   class="form-control w-50 mx-auto" id="age1" value="' + user.age + '"\n' +
+                '            />\n' +
+                '          </div>\n' +
+                '          <div class="form-group">\n' +
+                '            <label for="username1"><b>Email</b></label>\n' +
+                '            <input name="username" type="text" readonly \n' +
+                '                   class="form-control w-50 mx-auto" id="username1" value="' + user.username + '"\n' +
+                '                   />\n' +
+                '          </div>\n' +
+                '          <div class="form-group" readonly="readonly">\n' +
+                '            <label for="roles1"><b>Role</b></label>\n' +
+                '            <select disabled multiple\n' +
+                '                    class="form-control form-control-sm w-50 mx-auto"\n' +
+                '                    id="roles1"\n' +
+                '                    size="2" name="roles">\n' +
+
+                '            </select>\n' +
+                '            <br><br>\n' +
+                '          </div>\n' +
+                '        </div>\n' +
+                '        <div class="modal-footer">\n' +
+                '          <button type="button" class="btn btn-secondary"\n' +
+                '                  data-bs-dismiss="modal">Close\n' +
+                '          </button>\n' +
+                '          <button type="submit" onclick="deleteUser()" class="btn btn-danger">\n' +
+                '            Delete\n' +
+                '          </button>\n' +
+                '        </div>';
+            let select = "";
+            userFetch.getRoles().then(res => {
+                    if (res.ok) {
+                        res.json().then(
+                            data => {
+                                let temp1;
+                                let temp2;
+                                temp2 = user.roles;
+                                temp1 = data._embedded.roleList;
+                                let id = temp2.map(e => e.id);
+                                for (let i = 0; i < temp1.length; i++) {
+                                    if (id.includes(temp1[i].id)) {
+                                        select += "<option selected='selected' id='D" + temp1[i].id + "'>" + temp1[i].name.substring(5) + "</option> ";
+                                    } else {
+                                        select += "<option id='D" + temp1[i].id + "'>" + temp1[i].name.substring(5) + "</option> ";
+                                    }
+                                }
+                                document.getElementById("roles1").innerHTML = select;
+                                let myModal = new bootstrap.Modal(document.getElementById('deleteModal'), {
+                                    keyboard: true
+                                })
+                                myModal.show();
+                            }
+                        )
+                    } else {
+                        res.text().then(re => console.log("Ошибка получения ролей " + re));
+                    }
+                }
+            );
+        });
+
+    } else {
+        response.text().then(r => alert(r));
+    }
 
 }
-   function updateUsersTable(){
-      let link = document.getElementById("js-cardBody")
-       link.innerHTML = "<p class='card-text'>" +
-           " <table class='table table-striped' id='tableAllUser'>" +
-           "                <thead>" +
-           "                <tr>" +
-           "                    <tr id='trHead'>" +
-           "                        <th>ID</th>" +
-           "                        <th>First Name</th>" +
-           "                        <th>Last Name</th>" +
-           "                        <th>Age</th>" +
-           "                        <th>Email</th>" +
-           "                        <th>Role</th>" +
-           "                        <th id='thEdit'>Edit</th>" +
-           "                        <th id='thDelete'>Delete</th>" +
-           "                    </tr>" +
-           "                </tr>" +
-           "                </thead>" +
-           "                <tbody id='data'>" +
-           "                </tr>" +
-           "            </tbody>" +
-           "        </table>" +
-           "    </p>";
 
-       userFetch.findAllUsers().then(res => {
-               res.json().then(
-                   data => {
-                       let a = data._embedded.userList.length;
-                       if (a > 0) {
-                           let temp = "";
-                           let i = "btnE1";
-                           let ii = "btnD1";
-                           let k = 1;
-                           data._embedded.userList.forEach((u) => {
 
-                               temp += "<tr>";
-                               temp += "<td>" + u.id + "</td>";
-                               temp += "<td>" + u.firstName + "</td>";
-                               temp += "<td>" + u.lastName + "</td>";
-                               temp += "<td>" + u.age + "</td>";
-                               temp += "<td>" + u.username + "</td>";
-                               let temp2 = "";
-                               for (r in u.roles) {
-                                   temp2 += u.roles[r].name.substring(5) + " ";
-                               }
-                               temp += "<td>" + temp2 + "</td>";
+function updateUsersTable() {
+    let link = document.getElementById("js-cardBody")
+    link.innerHTML = "<p class='card-text'>" +
+        " <table class='table table-striped' id='tableAllUser'>" +
+        "                <thead>" +
+        "                <tr>" +
+        "                    <tr id='trHead'>" +
+        "                        <th>ID</th>" +
+        "                        <th>First Name</th>" +
+        "                        <th>Last Name</th>" +
+        "                        <th>Age</th>" +
+        "                        <th>Email</th>" +
+        "                        <th>Role</th>" +
+        "                        <th id='thEdit'>Edit</th>" +
+        "                        <th id='thDelete'>Delete</th>" +
+        "                    </tr>" +
+        "                </tr>" +
+        "                </thead>" +
+        "                <tbody id='data'>" +
+        "                </tr>" +
+        "            </tbody>" +
+        "        </table>" +
+        "    </p>";
+
+    userFetch.findAllUsers().then(res => {
+            res.json().then(
+                data => {
+                    let a = data._embedded.userList.length;
+                    if (a > 0) {
+                        let temp = "";
+                        let i = "btnE1";
+                        let ii = "btnD1";
+                        let k = 1;
+                        data._embedded.userList.forEach((u) => {
+
+                            temp += "<tr>";
+                            temp += "<td>" + u.id + "</td>";
+                            temp += "<td>" + u.firstName + "</td>";
+                            temp += "<td>" + u.lastName + "</td>";
+                            temp += "<td>" + u.age + "</td>";
+                            temp += "<td>" + u.username + "</td>";
+                            let temp2 = "";
+                            for (r in u.roles) {
+                                temp2 += u.roles[r].name.substring(5) + " ";
+                            }
+                            temp += "<td>" + temp2 + "</td>";
 //data-bs-target='#editModal data-bs-target='#deleteModal data-bs-toggle='modal'
-                               temp += "<td>" +
-                                   "                        <button type='button' data-userid='" + u.id + "' data-action='edit' class='btn btn-info js-open-modal'" +
-                                   "                          onclick='startModal(this)' >Edit</button>" +
-                                   "                    </td>" +
-                                   "                    <td>" +
-                                   "                        <button  type='button' data-userid='" + u.id + "' data-action='delete' class='btn btn-danger js-open-modal'" +
-                                   "                        onclick='startModal(this)'   >Delete</button>" +
-                                   "                    </td>" +
-                                   "                </tr>";
-                               document.getElementById("data").innerHTML = temp;
-                               k += 1;
-                               i = "btnE" + k.toString();
-                               ii = "btnD" + k.toString();
-
-                           })
-                       }
-                   }
-               )
-           }
-       )
-
-
-   }
-
-
+                            temp += "<td>" +
+                                "                        <button type='button' data-userid='" + u.id + "' data-action='edit' class='btn btn-info js-open-modal'" +
+                                "                          onclick='startEditModal(this)' >Edit</button>" +
+                                "                    </td>" +
+                                "                    <td>" +
+                                "                        <button  type='button' data-userid='" + u.id + "' data-action='delete' class='btn btn-danger js-open-modal'" +
+                                "                        onclick='startDeleteModal(this)'   >Delete</button>" +
+                                "                    </td>" +
+                                "                </tr>";
+                            document.getElementById("data").innerHTML = temp;
+                            k += 1;
+                            i = "btnE" + k.toString();
+                            ii = "btnD" + k.toString();
+                        })
+                    }
+                }
+            )
+        }
+    )
+}
 
 
 async function add() {
     document.getElementById('form').onsubmit = function (event) {
         event.preventDefault();
     }
-
     let sel = document.getElementById('roles').options;
-
     let opt;
     let arrRoles = [];
-
     let j = 0;
     for (let i = 0; i < sel.length; i++) {
         opt = sel[i];
@@ -506,7 +522,6 @@ async function add() {
             j += 1;
         }
     }
-
     const data = {
         firstName: document.getElementById('firstName').value,
         lastName: document.getElementById('lastName').value,
@@ -516,34 +531,33 @@ async function add() {
         roles: JSON.parse(JSON.stringify(arrRoles))
 
     };
-
     let response = await userFetch.addNewUser(data);
     if (response.ok) {
-        changeViews(3);
+        await changeViews(3);
     } else {
-        response.text().then(r=> alert(r));
-
+        response.text().then(r => alert(r));
     }
 }
 
-function closeModal(){
+function closeModal() {
 
 }
 
 async function deleteUser() {
-    // document.getElementById('modal-form-js').onsubmit = function (event) {
-    //     event.preventDefault();
-    //     document.getElementById("js-close").click();
-    // }
-    let a = document.getElementById('id').value;
+    document.getElementById('modal-delete-form-js').onsubmit = function (event) {
+        event.preventDefault();
+        document.getElementById("js-closeDelete").click();
+    }
+    let a = document.getElementById('id1').value;
     let response = await userFetch.deleteUser(parseInt(a));
     if (response.ok) {
         console.log(response.status);
         updateUsersTable();
-        cleanModal();
+
     } else {
         response.text().then(r => alert(r));
     }
+    cleanDeleteModal();
 }
 
 async function update() {
@@ -551,12 +565,9 @@ async function update() {
         event.preventDefault();
         document.getElementById("js-close").click();
     }
-
     let sel = document.getElementById('roles').options;
-
     let opt;
     let arrRoles = [];
-
     let j = 0;
     for (let i = 0; i < sel.length; i++) {
         opt = sel[i];
@@ -567,7 +578,6 @@ async function update() {
             j += 1;
         }
     }
-
     const data = {
         firstName: document.getElementById('firstName').value,
         lastName: document.getElementById('lastName').value,
@@ -575,20 +585,29 @@ async function update() {
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
         roles: JSON.parse(JSON.stringify(arrRoles))
-
     };
-let a =document.getElementById('id').value;
+    let a = document.getElementById('id').value;
     let response = await userFetch.updateUser(data, parseInt(a));
     if (response.ok) {
         console.log(response.status);
         updateUsersTable();
-        cleanModal();
+        infoUser();
+
     } else {
         response.text().then(r => alert(r));
     }
+    cleanEditModal();
 }
-function cleanModal(){
-    var myModel = document.getElementById('modal-form-js')
+
+function cleanEditModal() {
+    const myModel = document.getElementById('modal-form-js');
+    while (myModel.firstChild) {
+        myModel.removeChild(myModel.firstChild);
+    }
+}
+
+function cleanDeleteModal() {
+    const myModel = document.getElementById('modal-delete-form-js');
     while (myModel.firstChild) {
         myModel.removeChild(myModel.firstChild);
     }
@@ -640,7 +659,7 @@ function setSelect() {
                     let a = data._embedded.roleList.length;
                     if (a > 0) {
                         data._embedded.roleList.forEach((u) => {
-                            select += "<option id='"+ u.id +"'>" + u.name.substring(5) + "</option> ";
+                            select += "<option id='" + u.id + "'>" + u.name.substring(5) + "</option> ";
                         })
                         document.getElementById("roles").innerHTML = select;
                     }
