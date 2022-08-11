@@ -8,7 +8,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import web.exception.EmailException;
-import web.exception.UserEmailAlreadyExist;
 import web.exception.UserNotFoundException;
 import web.model.Role;
 import web.model.User;
@@ -58,9 +57,9 @@ public class UserServiceImp implements UserService {
 
     @Override
     public User save(User user) {
-          if (userRepository.findByUsername(user.getUsername()) != null) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new EmailException(user.getUsername());
-        } else  if (user.getUsername() == null || user.getUsername().equals("")) {
+        } else if (user.getUsername() == null || user.getUsername().equals("")) {
             throw new EmailException();
         }
         checkRole(user);
@@ -73,8 +72,7 @@ public class UserServiceImp implements UserService {
     public void deleteById(Long id) {
         if (userRepository.findById(id).isPresent()) {
             userRepository.deleteById(id);
-        }
-        else {
+        } else {
             throw new UserNotFoundException(id);
         }
 
@@ -95,21 +93,20 @@ public class UserServiceImp implements UserService {
     @Override
     public User edit(Long id, User user) {
 
-      return userRepository.findById(id).map(u -> {
+        return userRepository.findById(id).map(u -> {
                     user.setId(id);
-                  List<User> users = userRepository.findAllByUsername(user.getUsername());
-                  if (users.size() == 0 || users.size() == 1 && users.get(0).getId() == user.getId()) {
-                      checkRole(user);
-                      if (!userRepository.findById(user.getId()).get().getPassword().equals(user.getPassword())) {
-                          user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-                      }
+                    List<User> users = userRepository.findAllByUsername(user.getUsername());
+                    if (users.size() == 0 || users.size() == 1 && users.get(0).getId() == user.getId()) {
+                        checkRole(user);
+                        if (!userRepository.findById(user.getId()).get().getPassword().equals(user.getPassword())) {
+                            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+                        }
 
-                  } else throw new UserEmailAlreadyExist(user.getUsername());
-                  return  userRepository.save(user);
-              })
+                    } else throw new EmailException(user.getUsername());
+                    return userRepository.save(user);
+                })
 
-              .orElseThrow(() -> new UserNotFoundException(id));
-
+                .orElseThrow(() -> new UserNotFoundException(id));
 
 
     }
@@ -128,7 +125,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public User findByID(Long id) {
-        return userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         // .getReferenceById(id);
     }
 

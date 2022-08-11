@@ -1,10 +1,7 @@
 package web.exception;
 
 
-
-import java.util.regex.Pattern;
-
-public class EmailException extends RuntimeException{
+public class EmailException extends RuntimeException {
 
 
     public EmailException() {
@@ -14,8 +11,8 @@ public class EmailException extends RuntimeException{
     public EmailException(String email) {
         super(String.format("User email '%s' already exist!", email));
     }
+
     public EmailException(boolean b) {
         super("Bad email");
     }
-
 }

@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import web.service.UserServiceImp;
 
 @Configuration
@@ -18,7 +17,6 @@ public class WebSecurityConfig {
     private final SuccessUserHandler successUserHandler;
 
     private UserServiceImp userServiceImp;
-
 
     @Autowired
     public WebSecurityConfig(SuccessUserHandler successUserHandler) {
@@ -30,58 +28,34 @@ public class WebSecurityConfig {
         this.userServiceImp = userServiceImp;
     }
 
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeRequests()
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-//                .antMatchers("/user").hasAnyRole("USER", "ADMIN")
-//                .antMatchers("/").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin()
-//                .loginPage("/login")
-//                .successHandler(successUserHandler)
-//                .loginProcessingUrl("/perform-login")
-//                .usernameParameter("c_email")
-//                .passwordParameter("c_password")
-//
-//                .permitAll()
-//
-//                .and()
-//                .logout()
-//                .logoutSuccessUrl("/login?logout")
-//                .permitAll()
-//                .and().csrf().disable()                ;
-//    }
+
     //for spring version 2.7.0
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
+
                 .authorizeRequests()
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-//                .antMatchers("/user").hasAnyRole("USER", "ADMIN")
-//                .antMatchers("/").permitAll()
-               // .antMatchers("/api/getUser").hasAnyRole("USER", "ADMIN")
-//                .antMatchers("/test").permitAll()
-//                .antMatchers("/static/**").permitAll()
-                .anyRequest().permitAll()
+                .antMatchers("/","/login").permitAll()
+                .antMatchers("/api/getRoles","/index").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/api/getUsers", "/static/**",
+                        "/api/delete/**","/api/create/**","/api/update/**").hasRole("ADMIN")
+
                 .and().httpBasic()
 
                 .and()
                 .formLogin()
                 .loginPage("/login")
-                                .successHandler(successUserHandler)
+                .successHandler(successUserHandler)
                 .loginProcessingUrl("/perform-login")
                 .usernameParameter("c_email")
                 .passwordParameter("c_password")
-
                 .permitAll()
 
                 .and()
                 .logout()
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
+
                 .and().sessionManagement().disable();
         return http.build();
     }
@@ -100,11 +74,9 @@ public class WebSecurityConfig {
     }
 
   /*
-
-
-    //for spring version 2.7.0
-    @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //for spring version < 2.7.0
+        @Override
+    protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -112,18 +84,20 @@ public class WebSecurityConfig {
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().successHandler(successUserHandler)
+                .formLogin()
+                .loginPage("/login")
+                .successHandler(successUserHandler)
+                .loginProcessingUrl("/perform-login")
+                .usernameParameter("c_email")
+                .passwordParameter("c_password")
+
                 .permitAll()
+
                 .and()
                 .logout()
-                .logoutSuccessUrl("/index")
-                .permitAll();
-        return http.build();
-    }
-
-    @Bean
-    protected WebSecurityCustomizer webSecurityCustomizer() {
-
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+                .and().csrf().disable();
     }
      */
 }

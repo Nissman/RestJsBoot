@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 
-
 @RestController
 @CrossOrigin
 public class RestControl {
@@ -30,6 +29,7 @@ public class RestControl {
     private final UserModelAssembler userAssembler;
 
     private final RoleModelAssembler roleAssembler;
+
     private final RoleService roleService;
 
     @Autowired
@@ -42,7 +42,7 @@ public class RestControl {
 
     @GetMapping("/api/getUser")
     public EntityModel<User> getUser(@AuthenticationPrincipal User user) {
-       // User actualUser = userService.findByID(user.getId());
+        // User actualUser = userService.findByID(user.getId());
 
         return getUserByID(user.getId());
     }
@@ -52,7 +52,6 @@ public class RestControl {
         User user = userService.findByID(id);
         return userAssembler.toModel(user);
     }
-
 
     @GetMapping("/api/getUsers")
     public CollectionModel<EntityModel<User>> getUsers() {
@@ -92,7 +91,7 @@ public class RestControl {
     }
 
     @DeleteMapping("/api/delete/{id}")
-    ResponseEntity<?>  deleteUserById(@PathVariable Long id) {
+    ResponseEntity<?> deleteUserById(@PathVariable Long id) {
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

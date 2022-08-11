@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import web.exception.UserNotFoundException;
 import web.model.Role;
-import web.model.User;
 import web.repository.RoleRepository;
 
 import java.util.List;
@@ -42,6 +41,6 @@ public class RoleServiceImp implements RoleService {
 
     @Override
     public Role findByID(Long id) {
-        return roleRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
+        return roleRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 }

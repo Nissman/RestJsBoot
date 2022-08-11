@@ -19,15 +19,12 @@ const userFetch = {
         {method: 'DELETE', headers: userFetch.head})
 }
 
-
-async function infoUser(a = 0) {
+async function infoUser() {
     let temp = '';
     const name = document.querySelector('#js-info');
-    while (name.firstChild){
+    while (name.firstChild) {
         name.removeChild(name.firstChild);
     }
-    let mainRole = "";
-    let secondRole = "";
     let id;
     await userFetch.findCurrentUser()
         .then(res => res.json())
@@ -37,196 +34,66 @@ async function infoUser(a = 0) {
             <span class="align-middle h3 font-weight-normal">with roles:</span>
             <span id="js-currentUserRole" class="align-middle h3 font-weight-normal" >${user.roles.map(e => " " + e.name.substring(5))}
             </span>`;
-            for (let i = 0; i < user.roles.length; i++) {
-                if (user.roles[i].name === "ROLE_ADMIN") {
-                    mainRole = user.roles[i].name.substring(5);
-                }
-                if (user.roles[i].name === "ROLE_USER") {
-                    secondRole = user.roles[i].name.substring(5);
-                }
+            let roles = user.roles.map(e => e.name.substring(5));
+            if (roles.includes("ADMIN")) {
+                initAdminDefaultView();
+            } else {
+                initUserDefaultView();
             }
         });
     name.innerHTML = temp;
-    initView(mainRole, secondRole, id, a);
 }
 
-function initView(role1, role2, id, c) {
-    let link;
-    if (role1 === "ADMIN" && c !== 1) {
-        if (c === 2) {
-            document.getElementById("js-usrTable").classList.add('active');
-            document.getElementById("js-usrTable").removeAttribute('onclick');
-            document.getElementById("js-newUser").classList.remove('active');
-            document.getElementById("js-newUser").setAttribute('href', 'javascript:void(0)');
-        }
-        if (c === 3) {
-            addAdminTabs()
-            document.getElementById("js-user").classList.remove('active');
-            document.getElementById("js-admin").classList.add('active');
-            document.getElementById("js-admin").removeAttribute('onclick')
-        }
-        document.getElementById("js-user").setAttribute('onclick', 'changeViews(2)');
-        document.getElementById("js-newUser").setAttribute('onclick', 'newUserForm()');
-        document.getElementById("js-h1Header").innerText = "Admin panel";
-        document.getElementById("js-h5Header").innerText = "All users";
-        link = document.getElementById("js-cardBody")
-        while (link.firstChild) {
-            link.removeChild(link.firstChild);
-        }
-        drawTable(role1, link, id);
-    } else if (role2 === "USER" || c === 1) {
-        link = document.getElementById("js-user");
-        link.classList.add('active')
-        link.removeAttribute('onclick');
-        if (c === 1) {
-
-            link = document.getElementById("js-admin");
-            link.classList.remove('active');
-            link.setAttribute('onclick', 'changeViews(1)');
-            link = document.getElementById("js-adminTabs");
-            while (link.firstChild) {
-                link.removeChild(link.firstChild);
-            }
-        }
-        document.getElementById("js-h1Header").innerText = "User Information-page";
-        document.getElementById("js-h5Header").innerText = "About user";
-        link = document.getElementById("js-cardBody")
-        while (link.firstChild) {
-            link.removeChild(link.firstChild);
-        }
-        if (c === 1) {
-            drawTable("USER", link, id);
-        } else {
-            drawTable(role2, link, id);
-        }
+function initAdminDefaultView() {
+    addAdminTabs();
+    document.getElementById("js-user").setAttribute('onclick', 'changeUserView()');
+    let nav = ' <a id="js-admin" class="nav-link active h5"  href="javascript:void(0);" >Admin</a>';
+    document.getElementById("js-adme").innerHTML = nav;
+    document.getElementById("js-h1Header").innerText = "Admin panel";
+    document.getElementById("js-h5Header").innerText = "All users";
+    link = document.getElementById("js-cardBody")
+    while (link.firstChild) {
+        link.removeChild(link.firstChild);
     }
+    updateUsersTable();
 }
 
-async function changeViews(n) {
-    let mainRole = "";
-    let secondRole = "";
-    let id;
+function initUserDefaultView() {
+    document.getElementById("js-user").classList.add('active');
+    document.getElementById("js-h1Header").innerText = "User Information-page";
+    document.getElementById("js-h5Header").innerText = "About user";
+    userTable();
+}
+
+async function userTable() {
+    let link = document.getElementById("js-cardBody")
+    while (link.firstChild) {
+        link.removeChild(link.firstChild);
+    }
+    let temp2 = "";
+    let table = " <p class='card-text'>" +
+        "<table class='table table-striped'>" +
+        "                <thead>" +
+        "                <tr>" +
+        "                    <tr>" +
+        "                        <th>ID</th>" +
+        "                        <th>First Name</th>" +
+        "                        <th>Last Name</th>" +
+        "                        <th>Age</th>" +
+        "                        <th>Email</th>" +
+        "                        <th>Role</th>" +
+        "                    </tr>" +
+        "                </tr>" +
+        "                </thead>" +
+        "                <tbody id='data'>" +
+        "                </tr>" +
+        "            </tbody>" +
+        "        </table>" +
+        "    </p>";
+    link.innerHTML = table;
     await userFetch.findCurrentUser()
-        .then(res => res.json())
-        .then(user => {
-            id = user.id;
-            for (let i = 0; i < user.roles.length; i++) {
-                if (user.roles[i].name === "ROLE_ADMIN") {
-                    mainRole = user.roles[i].name.substring(5);
-                }
-                if (user.roles[i].name === "ROLE_USER") {
-                    secondRole = user.roles[i].name.substring(5);
-                }
-            }
-            switch (n) {
-                case 1:
-                    initView(mainRole, secondRole, id, 3);
-                    break;
-                case 2:
-                    initView(mainRole, secondRole, id, 1);
-                    break;
-                case 3:
-                    initView(mainRole, secondRole, id, 2);
-                    break;
-                default:
-                    break;
-            }
-        });
-}
-
-
-async function drawTable(role, el, id) {
-    if (role === "ADMIN") {
-        el.innerHTML = "<p class='card-text'>" +
-            " <table class='table table-striped' id='tableAllUser'>" +
-            "                <thead>" +
-            "                <tr>" +
-            "                    <tr id='trHead'>" +
-            "                        <th>ID</th>" +
-            "                        <th>First Name</th>" +
-            "                        <th>Last Name</th>" +
-            "                        <th>Age</th>" +
-            "                        <th>Email</th>" +
-            "                        <th>Role</th>" +
-            "                        <th id='thEdit'>Edit</th>" +
-            "                        <th id='thDelete'>Delete</th>" +
-            "                    </tr>" +
-            "                </tr>" +
-            "                </thead>" +
-            "                <tbody id='data'>" +
-            "                </tr>" +
-            "            </tbody>" +
-            "        </table>" +
-            "    </p>";
-
-        userFetch.findAllUsers().then(res => {
-                res.json().then(
-                    data => {
-                        let a = data._embedded.userList.length;
-                        if (a > 0) {
-                            let temp = "";
-                            let i = "btnE1";
-                            let ii = "btnD1";
-                            let k = 1;
-                            data._embedded.userList.forEach((u) => {
-
-                                temp += "<tr>";
-                                temp += "<td>" + u.id + "</td>";
-                                temp += "<td>" + u.firstName + "</td>";
-                                temp += "<td>" + u.lastName + "</td>";
-                                temp += "<td>" + u.age + "</td>";
-                                temp += "<td>" + u.username + "</td>";
-                                let temp2 = "";
-                                for (r in u.roles) {
-                                    temp2 += u.roles[r].name.substring(5) + " ";
-                                }
-                                temp += "<td>" + temp2 + "</td>";
-//data-bs-target='#editModal data-bs-target='#deleteModal data-bs-toggle='modal'
-                                temp += "<td>" +
-                                    "                        <button type='button' data-userid='" + u.id + "' data-action='edit' class='btn btn-info js-open-modal'" +
-                                    "                          onclick='startEditModal(this)' >Edit</button>" +
-                                    "                    </td>" +
-                                    "                    <td>" +
-                                    "                        <button  type='button' data-userid='" + u.id + "' data-action='delete' class='btn btn-danger js-open-modal'" +
-                                    "                        onclick='startDeleteModal(this)'   >Delete</button>" +
-                                    "                    </td>" +
-                                    "                </tr>";
-                                document.getElementById("data").innerHTML = temp;
-                                k += 1;
-                                i = "btnE" + k.toString();
-                                ii = "btnD" + k.toString();
-
-                            })
-                        }
-                    }
-                )
-            }
-        )
-
-    } else if (role === "USER") {
-        let temp2 = "";
-        let table = " <p  class='card-text'>" +
-            "<table class='table table-striped'>" +
-            "                <thead>" +
-            "                <tr>" +
-            "                    <tr>" +
-            "                        <th>ID</th>" +
-            "                        <th>First Name</th>" +
-            "                        <th>Last Name</th>" +
-            "                        <th>Age</th>" +
-            "                        <th>Email</th>" +
-            "                        <th>Role</th>" +
-            "                    </tr>" +
-            "                </tr>" +
-            "                </thead>" +
-            "                <tbody id='data'>" +
-            "                </tr>" +
-            "            </tbody>" +
-            "        </table>" +
-            "    </p>";
-        el.innerHTML = table;
-        await userFetch.findOneUser(id)
-            .then(res => {
+        .then(res => {
+            if (res.ok) {
                 res.json().then(
                     user => {
                         table = "";
@@ -242,10 +109,63 @@ async function drawTable(role, el, id) {
                         table += "<td>" + temp2 + "</td></tr>";
                         document.getElementById("data").innerHTML = table;
                     })
-            });
-    }
+            } else {
+                res.text().then(r => {
+                    console.log("Ошибка " + r);
+                    alert(r);
+                })
+            }
+        });
+
 }
 
+async function checkChange() {
+    await userFetch.findCurrentUser()
+        .then(res => res.json())
+        .then(user => {
+            let roles = user.roles.map(e => e.name.substring(5));
+            if (roles.includes("ADMIN")) {
+            } else {
+                let temp = "";
+                const name = document.querySelector('#js-info');
+                while (name.firstChild) {
+                    name.removeChild(name.firstChild);
+                }
+                temp = document.getElementById("js-adme");
+                while (temp.firstChild) {
+                    temp.removeChild(temp.firstChild);
+                }
+                deleteAdminTabs();
+                temp = document.getElementById("js-cardBody");
+                while (temp.firstChild) {
+                    temp.removeChild(temp.firstChild);
+                }
+                infoUser();
+            }
+        });
+}
+
+function changeUserView() {
+    deleteAdminTabs()
+    document.getElementById("js-h1Header").innerText = "User Information-page";
+    document.getElementById("js-h5Header").innerText = "About user";
+    document.getElementById("js-user").classList.add('active');
+    document.getElementById("js-user").removeAttribute('onclick');
+    document.getElementById("js-admin").setAttribute('onclick', 'changeAdminView()')
+    document.getElementById("js-admin").classList.remove('active');
+    userTable();
+}
+
+function changeAdminView() {
+    addAdminTabs();
+    document.getElementById("js-user").setAttribute('onclick', 'changeUserView()');
+    document.getElementById("js-user").classList.remove('active');
+    document.getElementById("js-admin").classList.add('active');
+    document.getElementById("js-admin").removeAttribute('onclick');
+    document.getElementById("js-h1Header").innerText = "Admin panel";
+    document.getElementById("js-h5Header").innerText = "All users";
+    updateUsersTable();
+}
 
 async function startEditModal(element) {
     let response = await userFetch.findOneUser(element.getAttribute("data-userid"));
@@ -293,9 +213,6 @@ async function startEditModal(element) {
                 '                    class="form-control form-control-sm w-50 mx-auto"\n' +
                 '                    id="roles"\n' +
                 '                    name="roles" size="2" required>\n' +
-                // '              <option>\n' +
-                // '\n' +
-                // '              </option>\n' +
                 '            </select>\n' +
                 '            <br><br>\n' +
                 '          </div>\n' +
@@ -337,7 +254,6 @@ async function startEditModal(element) {
                     }
                 }
             );
-
         });
     } else {
         response.text().then(r => alert(r));
@@ -428,16 +344,16 @@ async function startDeleteModal(element) {
                 }
             );
         });
-
     } else {
         response.text().then(r => alert(r));
     }
-
 }
-
 
 function updateUsersTable() {
     let link = document.getElementById("js-cardBody")
+    while (link.firstChild) {
+        link.removeChild(link.firstChild);
+    }
     link.innerHTML = "<p class='card-text'>" +
         " <table class='table table-striped' id='tableAllUser'>" +
         "                <thead>" +
@@ -466,42 +382,35 @@ function updateUsersTable() {
                     let a = data._embedded.userList.length;
                     if (a > 0) {
                         let temp = "";
-                        let i = "btnE1";
-                        let ii = "btnD1";
-                        let k = 1;
                         data._embedded.userList.forEach((u) => {
-
-                            temp += "<tr>";
-                            temp += "<td>" + u.id + "</td>";
-                            temp += "<td>" + u.firstName + "</td>";
-                            temp += "<td>" + u.lastName + "</td>";
-                            temp += "<td>" + u.age + "</td>";
-                            temp += "<td>" + u.username + "</td>";
+                            temp += "<tr>" +
+                                "<td>" + u.id + "</td>" +
+                                "<td>" + u.firstName + "</td>" +
+                                "<td>" + u.lastName + "</td>" +
+                                "<td>" + u.age + "</td>" +
+                                "<td>" + u.username + "</td>";
                             let temp2 = "";
                             for (r in u.roles) {
                                 temp2 += u.roles[r].name.substring(5) + " ";
                             }
-                            temp += "<td>" + temp2 + "</td>";
-//data-bs-target='#editModal data-bs-target='#deleteModal data-bs-toggle='modal'
-                            temp += "<td>" +
-                                "                        <button type='button' data-userid='" + u.id + "' data-action='edit' class='btn btn-info js-open-modal'" +
-                                "                          onclick='startEditModal(this)' >Edit</button>" +
-                                "                    </td>" +
-                                "                    <td>" +
-                                "                        <button  type='button' data-userid='" + u.id + "' data-action='delete' class='btn btn-danger js-open-modal'" +
-                                "                        onclick='startDeleteModal(this)'   >Delete</button>" +
-                                "                    </td>" +
-                                "                </tr>";
+                            temp += "<td>" + temp2 + "</td>" +
+                                "<td>" +
+                                " <button type='button' data-userid='" + u.id + "' data-action='edit' class='btn btn-info js-open-modal'" +
+                                " onclick='startEditModal(this)' >Edit</button>" +
+                                " </td>" +
+                                " <td>" +
+                                "  <button  type='button' data-userid='" + u.id + "' data-action='delete' class='btn btn-danger js-open-modal'" +
+                                "  onclick='startDeleteModal(this)'   >Delete</button>" +
+                                "  </td>" +
+                                "  </tr>";
                             document.getElementById("data").innerHTML = temp;
-                            k += 1;
-                            i = "btnE" + k.toString();
-                            ii = "btnD" + k.toString();
                         })
                     }
                 }
             )
         }
     )
+    checkChange();
 }
 
 
@@ -529,18 +438,13 @@ async function add() {
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
         roles: JSON.parse(JSON.stringify(arrRoles))
-
     };
     let response = await userFetch.addNewUser(data);
     if (response.ok) {
-        await changeViews(3);
+        await changeAdminView();
     } else {
         response.text().then(r => alert(r));
     }
-}
-
-function closeModal() {
-
 }
 
 async function deleteUser() {
@@ -553,7 +457,6 @@ async function deleteUser() {
     if (response.ok) {
         console.log(response.status);
         updateUsersTable();
-
     } else {
         response.text().then(r => alert(r));
     }
@@ -591,8 +494,6 @@ async function update() {
     if (response.ok) {
         console.log(response.status);
         updateUsersTable();
-        infoUser();
-
     } else {
         response.text().then(r => alert(r));
     }
@@ -642,7 +543,7 @@ function newUserForm() {
     container = document.getElementById("js-usrTable");
     container.classList.remove("active");
     container.setAttribute('href', 'javascript:void(0);');
-    container.setAttribute('onclick', 'changeViews(3)');
+    container.setAttribute('onclick', 'changeAdminView()');
     container = document.getElementById("js-newUser");
     container.classList.add("active");
     container.removeAttribute('onclick');
@@ -671,9 +572,14 @@ function setSelect() {
 
 function addAdminTabs() {
     let container = document.getElementById("js-adminTabs");
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
     let a = document.createElement("a");
     a.setAttribute('class', 'nav-link active h5');
     a.setAttribute('id', 'js-usrTable')
+    a.setAttribute('onclick', 'updateUsersTable()');
+    a.setAttribute('href', 'javascript:void(0);');
     a.innerText = "User Table";
 
     container.append(a);
@@ -684,8 +590,14 @@ function addAdminTabs() {
     a.setAttribute('id', 'js-newUser')
     a.innerText = "New User";
     container.append(a);
-
-
 }
+
+function deleteAdminTabs() {
+    let container = document.getElementById("js-adminTabs");
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+}
+
 
 

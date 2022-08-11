@@ -39,8 +39,8 @@
     <div class="row ">
       <div class="col-md-2 mt-2">
         <nav id="js-admuser" class="nav flex-column nav-pills">
-          <a id="js-admin" class="nav-link active h5"  href="javascript:void(0);" sec:authorize="hasRole('ROLE_ADMIN')" >Admin</a>
-          <a id="js-user"  href="javascript:void(0);" class="nav-link h5" sec:authorize="(hasAnyRole('ROLE_ADMIN', 'ROLE_USER'))">User</a>
+          <div id="js-adme"></div>
+          <a id="js-user"  href="javascript:void(0);"  class="nav-link h5">User</a>
         </nav>
       </div>
       <div class="col-md-10 flex bg-light vh-100">
@@ -49,8 +49,7 @@
         </h1>
         <div id="forTabs">
           <nav id = "js-adminTabs" class="nav nav nav-tabs">
-            <a id="js-usrTable" class="nav-link active h5" href="javascript:void(0);" sec:authorize="hasRole('ROLE_ADMIN')">User Table</a>
-            <a id="js-newUser" class="nav-link h5" href="javascript:void(0);" sec:authorize="hasRole('ROLE_ADMIN')">New User</a>
+
         </nav>
         </div>
 
