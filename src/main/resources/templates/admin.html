@@ -13,6 +13,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
           crossorigin="anonymous"></script>
+  <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+
   <script type="text/javascript" th:src="@{js/fetchUserInfo.js}"> </script>
 </head>
 <body onload="infoUser()">
@@ -68,82 +70,26 @@
 
 </div>
 <!-- editModal -->
-<div class="modal" tabindex="-1" id="editModal"
-     aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="editModal"
+     aria-labelledby="exampleModalLabel" aria-modal="true" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">Edit user</h5>
+        <h5 class="modal-title" id="editModalLabel"></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"><span aria-hidden="true">&times;</span>
+                aria-label="Close" id="js-close"><span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form taction=""
-            method="POST">
-        <div class="modal-body col-md text-center">
-          <div class="form-group">
-            <label for="id0"><b>ID</b></label>
-            <input name="id" readonly type="text"
-                   class="form-control w-50 mx-auto" id="id0"
-            >
-          </div>
-          <div class="form-group">
-            <label for="firstName0"><b>First Name</b></label>
-            <input name="firstName" type="text"
-                   class="form-control w-50 mx-auto" id="firstName0"
-                   required/>
-          </div>
-          <div class="form-group">
-            <label for="lastName0"><b>Last Name</b></label>
-            <input name="lastName" type="text"
-                   class="form-control w-50 mx-auto" id="lastName0"
-                   required/>
-          </div>
-          <div class="form-group">
-            <label for="age0"><b>Age</b></label>
-            <input name="age" type="number"
-                   class="form-control w-50 mx-auto" id="age0"
-                   required/>
-          </div>
-          <div class="form-group">
-            <label for="username0"><b>Email</b></label>
-            <input name="username" type="email"
-                   class="form-control w-50 mx-auto" id="username0"
-                   required/>
-          </div>
-          <div class="form-group">
-            <label for="e_password"><b>Password</b></label>
-            <input name="password" type="password"
-                   class="form-control w-50 mx-auto" id="e_password"
-                   required/>
-          </div>
-          <div class="form-group">
-            <label for="roles0"><b>Role</b></label>
-            <select multiple
-                    class="form-control form-control-sm w-50 mx-auto"
-                    id="roles0"
-                    name="roles" size="2" required>
-              <option>
+      <form id="modal-form-js" action="" method="POST">
 
-              </option>
-            </select>
-            <br><br>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary"
-                  data-bs-dismiss="modal">Close
-          </button>
-          <button type="submit" class="btn btn-primary">
-            Edit
-          </button>
-        </div>
+
       </form>
     </div>
   </div>
 </div>
 
-<!-- deleteModal -->
+<!-- deleteModal
+
 <div class="modal fade" id="deleteModal"
      aria-labelledby="exampleModalLabel2" aria-hidden="true">
   <div class="modal-dialog">
@@ -210,7 +156,7 @@
       </form>
     </div>
   </div>
-</div>
+</div>-->
 </body>
 
 </html>

@@ -91,7 +91,7 @@ public class RestControl {
                 .body(entityModel);
     }
 
-    @DeleteMapping("/api/delete/{id}")
+    @DeleteMapping("/api/update/{id}")
     ResponseEntity<?>  deleteUserById(@PathVariable Long id) {
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
